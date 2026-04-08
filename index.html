@@ -18,12 +18,15 @@
             --bg-dark: #0a0a0a;
         }
 
-        /* Fix Scroll Horizontal iOS & Global */
+        /* Fix Scroll Horizontal iOS & Global Strict */
         html, body {
-            overflow-x: hidden;
+            overflow-x: hidden !important;
             width: 100%;
-            max-width: 100vw;
+            max-width: 100%;
+            margin: 0;
+            padding: 0;
             position: relative;
+            -webkit-text-size-adjust: 100%;
         }
 
         body {
@@ -37,10 +40,10 @@
             font-family: 'Orbitron', sans-serif;
         }
 
-        /* Effet de grain pour texture */
+        /* Effet de grain pour texture - Correction du width: 100vw */
         .noise {
             position: fixed;
-            top: 0; left: 0; width: 100vw; height: 100vh;
+            top: 0; left: 0; right: 0; bottom: 0;
             background: url('https://grainy-gradients.vercel.app/noise.svg');
             opacity: 0.05;
             pointer-events: none;
@@ -106,6 +109,8 @@
             align-items: center;
             justify-content: center;
             position: relative;
+            width: 100%;
+            overflow: hidden;
         }
 
         /* Fallback si Banniere.jpg n'est pas trouvé */
@@ -124,8 +129,8 @@
             position: relative;
             z-index: 10;
             width: 100%;
-            max-width: 100vw;
             padding: 0 15px;
+            box-sizing: border-box;
         }
 
         .logo-img {
@@ -147,6 +152,8 @@
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
             border-bottom: 1px solid rgba(255,255,255,0.05);
+            width: 100%;
+            box-sizing: border-box;
         }
 
         .image-wrapper {
@@ -179,11 +186,11 @@
 <body>
     <div class="noise"></div>
 
-    <!-- Container Global pour garantir le no-overflow horizontal -->
-    <main class="w-full overflow-hidden">
+    <!-- Container Global Strict pour le no-overflow horizontal -->
+    <main class="w-full max-w-full overflow-hidden relative" style="box-sizing: border-box;">
 
         <!-- Navigation -->
-        <nav class="fixed top-0 w-full z-50 glass-nav py-4 px-4 md:px-8 flex justify-between items-center">
+        <nav class="fixed top-0 left-0 z-50 glass-nav py-4 px-4 md:px-8 flex justify-between items-center">
             <div class="flex items-center gap-4">
                 <span class="text-lg md:text-xl font-bold tracking-tighter uppercase neon-text">Tiki Vape</span>
             </div>
@@ -200,12 +207,12 @@
             <div class="logo-container text-center reveal">
                 
                 <!-- ENCAPSULATION DU LOGO POUR L'EFFET DE FUMÉE -->
-                <div id="logo-wrapper" class="relative inline-block mx-auto mb-6 md:mb-8">
+                <div id="logo-wrapper" class="relative inline-block mx-auto mb-6 md:mb-8 max-w-full">
                     <!-- Canvas générant la fumée -->
                     <canvas id="smokeCanvas" class="absolute pointer-events-none" style="z-index: 20; mix-blend-mode: screen;"></canvas>
                     
                     <!-- Image du logo (fallback sur logo.jpg si .png est absent) -->
-                    <img src="logo.png" onerror="this.src='logo.jpg'" alt="[Logo Tiki Vape]" class="logo-img relative z-10 shadow-2xl m-0">
+                    <img src="logo.png" onerror="this.src='logo.jpg'" alt="[Logo Tiki Vape]" class="logo-img relative z-10 shadow-2xl m-0 mx-auto">
                 </div>
 
                 <div class="reveal" style="transition-delay: 0.3s;">
@@ -213,16 +220,19 @@
                     <p class="text-sm md:text-xl font-light tracking-[0.3em] md:tracking-[0.4em] uppercase text-gray-400 px-4">E-Cigarettes & CBD Premium</p>
                 </div>
             </div>
-            <div class="absolute bottom-6 md:bottom-10 scroll-indicator text-gray-500 hidden md:block">
-                <i class="fas fa-mouse text-xl mb-2"></i>
+            
+            <!-- Indicateur de scroll réactivé et centré pour tous les écrans -->
+            <div class="absolute bottom-2 md:bottom-4 w-full flex flex-col items-center justify-center scroll-indicator text-gray-500 z-20">
+                <i class="fas fa-mouse text-2xl mb-1"></i>
+                <i class="fas fa-chevron-down text-sm opacity-70"></i>
             </div>
         </header>
 
         <!-- Concept Section avec Vape.jpg -->
-        <section id="concept" class="py-20 md:py-32 px-5 md:px-6 max-w-7xl mx-auto">
+        <section id="concept" class="py-20 md:py-32 px-5 md:px-6 max-w-7xl mx-auto w-full box-border">
             <div class="grid md:grid-cols-2 gap-12 md:gap-20 items-center">
-                <div class="reveal">
-                    <span class="text-[10px] md:text-xs font-bold tracking-[0.5em] text-gray-500 uppercase mb-4 block">Notre Philosophie</span>
+                <div class="reveal w-full overflow-hidden">
+                    <span class="text-[10px] md:text-xs font-bold tracking-[0.5em] text-gray-500 uppercase mb-4 block break-words">Notre Philosophie</span>
                     <h2 class="text-4xl md:text-5xl font-bold mb-8 md:mb-10 uppercase leading-[1.1] break-words">La Vape<br><span class="text-gray-500 italic">Redéfinie.</span></h2>
                     <p class="text-gray-400 text-base md:text-lg leading-relaxed mb-8 md:mb-10">
                         Inspiré par la précision technique et l'esthétique "Neon-Tech", Tiki Vape propose une immersion totale. Nous sélectionnons uniquement le matériel capable d'allier performance et élégance.
@@ -230,16 +240,16 @@
                     <div class="grid grid-cols-2 gap-4 md:gap-6">
                         <div class="p-3 md:p-4 border-l-2 border-white">
                             <h4 class="font-bold uppercase text-xs md:text-sm mb-1 md:mb-2">Qualité</h4>
-                            <p class="text-[10px] md:text-xs text-gray-500 uppercase">Produits certifiés</p>
+                            <p class="text-[10px] md:text-xs text-gray-500 uppercase break-words">Produits certifiés</p>
                         </div>
                         <div class="p-3 md:p-4 border-l-2 border-gray-700">
                             <h4 class="font-bold uppercase text-xs md:text-sm mb-1 md:mb-2">Style</h4>
-                            <p class="text-[10px] md:text-xs text-gray-500 uppercase">Design unique</p>
+                            <p class="text-[10px] md:text-xs text-gray-500 uppercase break-words">Design unique</p>
                         </div>
                     </div>
                 </div>
-                <div class="reveal" style="transition-delay: 0.2s;">
-                    <div class="image-wrapper">
+                <div class="reveal w-full" style="transition-delay: 0.2s;">
+                    <div class="image-wrapper w-full">
                         <!-- Emplacement pour Vape.jpg -->
                         <img src="Vape.jpg" alt="[Atmosphère Vape]" class="w-full h-auto grayscale hover:grayscale-0 transition duration-700">
                     </div>
@@ -248,46 +258,46 @@
         </section>
 
         <!-- Services Section -->
-        <section id="services" class="py-20 md:py-32 px-5 md:px-6 bg-[#030303] relative overflow-hidden">
-            <div class="max-w-7xl mx-auto relative z-10">
+        <section id="services" class="py-20 md:py-32 px-5 md:px-6 bg-[#030303] relative overflow-hidden w-full box-border">
+            <div class="max-w-7xl mx-auto relative z-10 w-full">
                 <div class="mb-12 md:mb-20 reveal">
-                    <h2 class="text-3xl md:text-4xl font-bold uppercase tracking-tighter">Nos <span class="text-gray-600">Spécialités</span></h2>
+                    <h2 class="text-3xl md:text-4xl font-bold uppercase tracking-tighter break-words">Nos <span class="text-gray-600">Spécialités</span></h2>
                     <div class="h-px w-24 md:w-32 bg-gradient-to-r from-white to-transparent mt-4"></div>
                 </div>
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
                     <!-- E-Cigarette -->
-                    <div class="service-card service-ecig p-8 md:p-10 rounded-xl flex flex-col items-start reveal">
+                    <div class="service-card service-ecig p-8 md:p-10 rounded-xl flex flex-col items-start reveal w-full box-border">
                         <i class="fas fa-bolt text-2xl mb-8 md:mb-12 text-red-500"></i>
-                        <h3 class="font-bold text-lg md:text-xl mb-3 md:mb-4 uppercase">E-cigarette</h3>
+                        <h3 class="font-bold text-lg md:text-xl mb-3 md:mb-4 uppercase break-words">E-cigarette</h3>
                         <p class="text-[11px] md:text-xs text-gray-500 leading-loose">Box, Pods et kits de dernière génération.</p>
                     </div>
 
                     <!-- E-Liquide -->
-                    <div class="service-card service-eliquide p-8 md:p-10 rounded-xl flex flex-col items-start reveal" style="transition-delay: 0.1s;">
+                    <div class="service-card service-eliquide p-8 md:p-10 rounded-xl flex flex-col items-start reveal w-full box-border" style="transition-delay: 0.1s;">
                         <i class="fas fa-flask text-2xl mb-8 md:mb-12 text-blue-400"></i>
-                        <h3 class="font-bold text-lg md:text-xl mb-3 md:mb-4 uppercase">E-liquide</h3>
+                        <h3 class="font-bold text-lg md:text-xl mb-3 md:mb-4 uppercase break-words">E-liquide</h3>
                         <p class="text-[11px] md:text-xs text-gray-500 leading-loose">Arômes complexes et sels de nicotine.</p>
                     </div>
 
                     <!-- Puff -->
-                    <div class="service-card service-puff p-8 md:p-10 rounded-xl flex flex-col items-start reveal" style="transition-delay: 0.2s;">
+                    <div class="service-card service-puff p-8 md:p-10 rounded-xl flex flex-col items-start reveal w-full box-border" style="transition-delay: 0.2s;">
                         <i class="fas fa-leaf text-2xl mb-8 md:mb-12 text-green-500"></i>
-                        <h3 class="font-bold text-lg md:text-xl mb-3 md:mb-4 uppercase">Puff</h3>
+                        <h3 class="font-bold text-lg md:text-xl mb-3 md:mb-4 uppercase break-words">Puff</h3>
                         <p class="text-[11px] md:text-xs text-gray-500 leading-loose">Solutions rechargeables et nomades JNR.</p>
                     </div>
 
                     <!-- Accessoires -->
-                    <div class="service-card service-acc p-8 md:p-10 rounded-xl flex flex-col items-start reveal" style="transition-delay: 0.3s;">
+                    <div class="service-card service-acc p-8 md:p-10 rounded-xl flex flex-col items-start reveal w-full box-border" style="transition-delay: 0.3s;">
                         <i class="fas fa-tools text-2xl mb-8 md:mb-12 text-purple-500"></i>
-                        <h3 class="font-bold text-lg md:text-xl mb-3 md:mb-4 uppercase">Accessoires</h3>
+                        <h3 class="font-bold text-lg md:text-xl mb-3 md:mb-4 uppercase break-words">Accessoires</h3>
                         <p class="text-[11px] md:text-xs text-gray-500 leading-loose">Coils, réservoirs, verre, accus chargeurs ...</p>
                     </div>
 
                     <!-- CBD -->
-                    <div class="service-card service-cbd p-8 md:p-10 rounded-xl flex flex-col items-start reveal" style="transition-delay: 0.4s;">
+                    <div class="service-card service-cbd p-8 md:p-10 rounded-xl flex flex-col items-start reveal w-full box-border" style="transition-delay: 0.4s;">
                         <i class="fas fa-cannabis text-2xl mb-8 md:mb-12 text-orange-400"></i>
-                        <h3 class="font-bold text-lg md:text-xl mb-3 md:mb-4 uppercase">CBD</h3>
+                        <h3 class="font-bold text-lg md:text-xl mb-3 md:mb-4 uppercase break-words">CBD</h3>
                         <p class="text-[11px] md:text-xs text-gray-500 leading-loose">Fleurs et résine de qualité premium.</p>
                     </div>
                 </div>
@@ -295,11 +305,11 @@
         </section>
 
         <!-- Footer / Contact -->
-        <footer id="contact" class="pt-20 md:pt-32 pb-8 md:pb-16 px-5 md:px-8 border-t border-white/5">
-            <div class="max-w-7xl mx-auto">
+        <footer id="contact" class="pt-20 md:pt-32 pb-8 md:pb-16 px-5 md:px-8 border-t border-white/5 w-full box-border">
+            <div class="max-w-7xl mx-auto w-full">
                 <div class="grid grid-cols-1 md:grid-cols-4 gap-12 md:gap-16 mb-16 md:mb-24">
-                    <div class="md:col-span-2">
-                        <h2 class="text-2xl md:text-3xl font-bold uppercase mb-6 md:mb-8">Tiki Vape</h2>
+                    <div class="md:col-span-2 w-full overflow-hidden">
+                        <h2 class="text-2xl md:text-3xl font-bold uppercase mb-6 md:mb-8 break-words">Tiki Vape</h2>
                         <p class="text-gray-500 text-sm md:text-base max-w-sm mb-6 md:mb-8 leading-relaxed">
                             Le point de ralliement des passionnés de la vape en Bretagne. Une boutique conçue pour vous offrir le meilleur de la technologie.
                         </p>
@@ -309,7 +319,7 @@
                         </div>
                     </div>
 
-                    <div>
+                    <div class="w-full">
                         <h4 class="text-[10px] uppercase tracking-[0.3em] text-gray-600 font-bold mb-4 md:mb-8">Nous Trouver</h4>
                         <p class="text-gray-300 text-sm md:text-base font-medium leading-relaxed">
                             23 bis rue de rennes<br>
@@ -317,15 +327,15 @@
                         </p>
                     </div>
 
-                    <div>
+                    <div class="w-full">
                         <h4 class="text-[10px] uppercase tracking-[0.3em] text-gray-600 font-bold mb-4 md:mb-8">Contact</h4>
-                        <a href="tel:0663202301" class="text-xl md:text-2xl font-bold hover:text-gray-500 transition tracking-tighter">06 63 20 23 01</a>
+                        <a href="tel:0663202301" class="text-xl md:text-2xl font-bold hover:text-gray-500 transition tracking-tighter whitespace-nowrap">06 63 20 23 01</a>
                         <p class="text-[10px] text-gray-700 mt-2 md:mt-4 uppercase">Appel local ou mobile</p>
                     </div>
                 </div>
                 
-                <div class="pt-8 md:pt-12 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-6 text-center md:text-left">
-                    <p class="text-[9px] md:text-[10px] text-gray-600 uppercase tracking-widest">© 2024 Tiki Vape Studio. Tous droits réservés.</p>
+                <div class="pt-8 md:pt-12 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-6 text-center md:text-left w-full">
+                    <p class="text-[9px] md:text-[10px] text-gray-600 uppercase tracking-widest break-words">© 2024 Tiki Vape Studio. Tous droits réservés.</p>
                     <div class="flex flex-wrap justify-center gap-4 md:gap-8 text-[9px] md:text-[10px] text-gray-600 uppercase tracking-widest">
                         <a href="#" class="hover:text-white transition">Mentions Légales</a>
                         <a href="#" class="hover:text-white transition">Cookies</a>
@@ -381,10 +391,10 @@
             function resize() {
                 const w = wrapper.offsetWidth || 300;
                 const h = wrapper.offsetHeight || 300;
-                // Le canvas est plus grand pour que la fumée déborde naturellement
-                // Mais ne doit pas dépasser la largeur de l'écran (pour éviter les bugs sur mobile)
+                
+                // Le canvas s'adapte sans jamais dépasser la taille réelle de l'écran (évite le scroll horizontal)
                 const maxWidth = window.innerWidth;
-                const canvasW = Math.min(w * 2.5, maxWidth);
+                const canvasW = Math.min(w * 2.5, maxWidth - 20); // -20 pour s'assurer d'une marge de sécurité
                 
                 canvas.width = canvasW;
                 canvas.height = h * 2.5;
