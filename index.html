@@ -1,14 +1,4 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TikiVape Site</title>
-</head>
-<body>
-    <h1>Tiki Vape</h1>
-</body>
-</html><!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
@@ -179,8 +169,16 @@
     <!-- Hero Section avec Banniere.jpg -->
     <header class="parallax-header px-4">
         <div class="logo-container text-center reveal">
-            <!-- Emplacement pour Logo.png -->
-            <img src="logo.png" alt="[Logo Tiki Vape]" class="logo-img mx-auto mb-8 shadow-2xl">
+            
+            <!-- ENCAPSULATION DU LOGO POUR L'EFFET DE FUMÉE -->
+            <div id="logo-wrapper" class="relative inline-block mx-auto mb-8">
+                <!-- Canvas générant la fumée -->
+                <canvas id="smokeCanvas" class="absolute pointer-events-none" style="z-index: 20; mix-blend-mode: screen;"></canvas>
+                
+                <!-- Image du logo (fallback sur logo.jpg si .png est absent) -->
+                <img src="logo.png" onerror="this.src='logo.jpg'" alt="[Logo Tiki Vape]" class="logo-img relative z-10 shadow-2xl m-0">
+            </div>
+
             <div class="reveal" style="transition-delay: 0.3s;">
                 <h1 class="text-4xl md:text-6xl font-bold uppercase tracking-widest mb-4">Tiki Vape</h1>
                 <p class="text-lg md:text-xl font-light tracking-[0.4em] uppercase text-gray-400">E-Cigarettes & CBD Premium</p>
@@ -336,6 +334,125 @@
                     });
                 }
             });
+        });
+
+        // ==========================================
+        // SYSTEME DE PARTICULES - FUMÉE DE VAPE (NOUVEAU)
+        // ==========================================
+        document.addEventListener("DOMContentLoaded", () => {
+            const canvas = document.getElementById('smokeCanvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            const wrapper = document.getElementById('logo-wrapper');
+            let particles = [];
+
+            // Ajustement de la taille du canvas par rapport à l'image
+            function resize() {
+                const w = wrapper.offsetWidth || 300;
+                const h = wrapper.offsetHeight || 300;
+                // Le canvas est plus grand pour que la fumée déborde naturellement
+                canvas.width = w * 2.5;
+                canvas.height = h * 2.5;
+                canvas.style.left = `-${(canvas.width - w) / 2}px`;
+                canvas.style.top = `-${(canvas.height - h) / 2}px`;
+            }
+
+            window.addEventListener('resize', resize);
+            
+            // Attendre le chargement de l'image pour un dimensionnement parfait
+            const img = wrapper.querySelector('img');
+            if(img) {
+                if (img.complete) {
+                    resize();
+                } else {
+                    img.addEventListener('load', resize);
+                }
+            } else {
+                resize();
+            }
+
+            class Particle {
+                constructor() {
+                    this.reset(true);
+                }
+                reset(randomY = false) {
+                    // Position de départ centrée avec légère variation
+                    this.x = canvas.width / 2 + (Math.random() * 120 - 60);
+                    // Départ vers le bas ou le centre du logo
+                    this.y = randomY ? Math.random() * canvas.height : canvas.height / 2 + (wrapper.offsetHeight || 300) / 4 + Math.random() * 30;
+                    
+                    // Dérive horizontale aléatoire douce
+                    this.vx = (Math.random() - 0.5) * 0.6;
+                    // Vitesse de montée (flottabilité de la fumée)
+                    this.vy = (Math.random() * -1.5) - 0.5;
+                    
+                    this.life = 0;
+                    this.maxLife = Math.random() * 200 + 150;
+                    this.size = Math.random() * 40 + 20;
+                    this.maxSize = this.size + Math.random() * 80 + 50;
+                    this.alpha = 0;
+                    
+                    // Couleur volumétrique : nuances de blanc/gris/bleuté très léger
+                    const shade = Math.floor(Math.random() * 30) + 225; 
+                    this.color = `${shade}, ${shade + 5}, ${shade + 15}`;
+                }
+                update() {
+                    this.x += this.vx;
+                    this.y += this.vy;
+                    
+                    // Légère perturbation pour imiter le vent / flux d'air
+                    this.vx += (Math.random() - 0.5) * 0.02;
+
+                    this.life++;
+                    this.size += (this.maxSize - this.size) * 0.008; // La fumée s'étend
+
+                    // Apparition (fade in) puis Disparition (fade out)
+                    if (this.life < this.maxLife * 0.3) {
+                        this.alpha = (this.life / (this.maxLife * 0.3)) * 0.25; // Transparence max à 0.25 pour ne pas cacher le logo
+                    } else {
+                        this.alpha = 0.25 * (1 - (this.life - this.maxLife * 0.3) / (this.maxLife * 0.7));
+                    }
+
+                    // Reset si mort, si trop grand, ou s'il sort trop haut
+                    if (this.life >= this.maxLife || this.size > this.maxSize * 0.98 || this.y < 0) {
+                        this.reset();
+                    }
+                }
+                draw() {
+                    ctx.save();
+                    ctx.globalAlpha = Math.max(0, this.alpha);
+                    
+                    // Dégradé radial pour un effet de "nuage" / "puff" doux
+                    const gradient = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, this.size);
+                    gradient.addColorStop(0, `rgba(${this.color}, 0.8)`);
+                    gradient.addColorStop(0.5, `rgba(${this.color}, 0.2)`);
+                    gradient.addColorStop(1, `rgba(${this.color}, 0)`);
+                    
+                    ctx.fillStyle = gradient;
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.restore();
+                }
+            }
+
+            // Génération de 80 particules pour une fumée dense mais fluide
+            particles = Array.from({ length: 80 }, () => new Particle());
+
+            function animate() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                particles.forEach(p => {
+                    p.update();
+                    p.draw();
+                });
+                requestAnimationFrame(animate);
+            }
+            
+            // Initiation
+            setTimeout(() => {
+                resize();
+                animate();
+            }, 100);
         });
     </script>
 </body>
